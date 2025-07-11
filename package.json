@@ -1,0 +1,44 @@
+{
+  "name": "@nemoprotocol/points-sdk",
+  "version": "0.1.0-beta.1",
+  "type": "module",
+  "main": "./dist/nemo-contract-sdk.umd.js",
+  "module": "./dist/nemo-contract-sdk.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/nemo-contract-sdk.es.js",
+      "require": "./dist/nemo-contract-sdk.umd.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && rm -rf dist && vite build",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "nemo",
+    "sui",
+    "defi",
+    "sdk"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nemoprotocol/nemo-front-page-v2.git"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "vite": "^7.0.0",
+    "vite-plugin-dts": "^4.5.4"
+  },
+  "dependencies": {
+    "@cetusprotocol/vaults-sdk": "0.0.0-experimental-20250414153224",
+    "@mysten/sui": "^1.35.0",
+    "decimal.js": "^10.4.3"
+  }
+}

@@ -21,6 +21,7 @@ The NEMO Protocol SDK provides core functionality for querying user positions, c
 - **Market Value Calculation**: Calculate current market values in SUI or underlying assets
 - **Yield Management**: Query and claim available yield
 - **Pool Information**: Get comprehensive pool statistics and market data
+- **Liquidity Management**: Add and remove liquidity positions with transaction execution
 
 ---
 
@@ -49,14 +50,23 @@ API_BASE_URL=https://api.nemoprotocol.com
 ### SDK Initialization
 
 ```typescript
-import { PositionQuery, PoolQuery } from '@nemoprotocol/contract-sdk'
+import { PositionQuery, PoolQuery, AddLiquidityAction } from '@nemoprotocol/contract-sdk'
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client'
 
+// Initialize query classes
 const positionQuery = new PositionQuery({
   network: 'mainnet', // or 'testnet', 'devnet', 'localnet'
   rpcUrl: 'https://sui-mainnet.mystenlabs.com' // optional
 })
 
 const poolQuery = new PoolQuery()
+
+// Initialize action class for transaction execution
+const suiClient = new SuiClient({ url: getFullnodeUrl('mainnet') })
+const liquidityAction = new AddLiquidityAction({
+  suiClient,
+  privateKeyHex: 'your-private-key-hex' // without 0x prefix or with it
+})
 ```
 
 ---
@@ -348,6 +358,196 @@ const pools = await poolQuery.queryPools()
 // ]
 ```
 
+### 6. Liquidity Management
+
+Execute liquidity-related transactions including adding and removing liquidity positions.
+
+#### Add Liquidity
+
+```typescript
+// Add liquidity to a pool
+const addResult = await liquidityAction.addLiquidity({
+  decimal: 9,
+  addType: 'SY', // 'SY' | 'TOKEN' | 'PT'
+  slippage: '0.01', // 1% slippage
+  lpValue: '1000000000', // Amount in base units
+  coinType: '0x...::coin::SUI',
+  conversionRate: '1.0',
+  addValue: '1000000000',
+  tokenType: 0, // 0 for SY, 1 for TOKEN, 2 for PT
+  action: 'mint', // 'mint' | 'swap'
+  
+  // Configuration objects
+  coinConfig: {
+    nemoContractId: '0x...',
+    version: '1.0.0',
+    coinType: '0x...::coin::SUI',
+    pyStateId: '0x...',
+    syCoinType: '0x...::sy_coin::SyCoin<0x...::coin::SUI>',
+    yieldFactoryConfigId: '0x...',
+    marketStateId: '0x...',
+    underlyingCoinType: '0x...::coin::SUI',
+    underlyingProtocol: 'Scallop',
+    priceOracleConfigId: '0x...',
+    oraclePackageId: '0x...',
+    oracleTicket: '0x...',
+    oracleVoucherPackageId: '0x...'
+  },
+  
+  marketStateData: {
+    // Market state object from pool query
+  },
+  
+  coinData: [
+    {
+      coinType: '0x...::coin::SUI',
+      balance: '1000000000',
+      coinObjectId: '0x...'
+    }
+  ],
+  
+  pyPositionData: {
+    // PY position data object
+  },
+  
+  lpPositions: [
+    {
+      id: { id: '0x...' },
+      name: 'LP-SUI-2024-12-31',
+      expiry: '2024-12-31',
+      lpAmount: '1000000000',
+      description: 'LP position for SUI',
+      marketStateId: '0x...'
+    }
+  ],
+  
+  // Optional parameters
+  vaultId: '0x...', // optional
+  insufficientBalance: false
+})
+
+// Check result
+if (addResult.success) {
+  console.log('Transaction successful:', addResult.transactionHash)
+  console.log('Transaction data:', addResult.data)
+} else {
+  console.error('Transaction failed:', addResult.error)
+}
+```
+
+#### Remove Liquidity
+
+```typescript
+// Remove liquidity from a position
+const removeResult = await liquidityAction.removeLiquidity({
+  lpAmount: '500000000', // Amount to remove
+  slippage: '0.01', // 1% slippage
+  ytBalance: '300000000',
+  action: 'swap', // 'swap' | 'redeem'
+  receivingType: 'underlying', // 'underlying' | 'sy'
+  
+  // Configuration objects
+  coinConfig: {
+    nemoContractId: '0x...',
+    version: '1.0.0',
+    coinType: '0x...::coin::SUI',
+    pyStateId: '0x...',
+    syCoinType: '0x...::sy_coin::SyCoin<0x...::coin::SUI>',
+    yieldFactoryConfigId: '0x...',
+    marketStateId: '0x...',
+    underlyingCoinType: '0x...::coin::SUI',
+    underlyingProtocol: 'Scallop',
+    priceOracleConfigId: '0x...',
+    oraclePackageId: '0x...',
+    oracleTicket: '0x...',
+    oracleVoucherPackageId: '0x...'
+  },
+  
+  lpPositions: [
+    {
+      id: { id: '0x...' },
+      name: 'LP-SUI-2024-12-31',
+      expiry: '2024-12-31',
+      lpAmount: '1000000000',
+      description: 'LP position for SUI',
+      marketStateId: '0x...'
+    }
+  ],
+  
+  pyPositions: [
+    {
+      id: '0x...',
+      maturity: '2024-12-31',
+      ptBalance: '500000000',
+      ytBalance: '300000000',
+      pyStateId: '0x...'
+    }
+  ],
+  
+  marketState: {
+    marketCap: '1000000000000',
+    totalSy: '500000000000',
+    lpSupply: '1000000000000',
+    totalPt: '500000000000',
+    rewardMetrics: []
+  },
+  
+  // Optional parameters
+  vaultId: '0x...', // optional
+  minSyOut: '480000000', // minimum SY output
+  ptCoins: [
+    {
+      coinType: '0x...::pt_coin::PtCoin<0x...::coin::SUI>',
+      balance: '500000000',
+      coinObjectId: '0x...'
+    }
+  ],
+  minValue: '480000000',
+  isSwapPt: false
+})
+
+// Check result
+if (removeResult.success) {
+  console.log('Transaction successful:', removeResult.transactionHash)
+  console.log('Transaction data:', removeResult.data)
+} else {
+  console.error('Transaction failed:', removeResult.error)
+}
+```
+
+#### Error Handling
+
+```typescript
+try {
+  const result = await liquidityAction.addLiquidity(params)
+  
+  if (!result.success) {
+    // Handle business logic errors
+    console.error('Business error:', result.error)
+    
+    // Common error scenarios:
+    // - Insufficient balance
+    // - Slippage too high
+    // - Invalid parameters
+    // - Market not active
+  }
+} catch (error) {
+  // Handle unexpected errors
+  console.error('Unexpected error:', error)
+}
+```
+
+#### Utility Methods
+
+```typescript
+// Get current wallet address
+const walletAddress = liquidityAction.getAddress()
+console.log('Wallet address:', walletAddress)
+
+// Get Sui client instance
+const client = liquidityAction.getSuiClient()
+```
+
 ---
 
 ## API Reference
@@ -444,6 +644,90 @@ new PoolQuery()
 ```typescript
 async queryPools(): Promise<PortfolioItem[]>
 ```
+
+### AddLiquidityAction Class
+
+#### Constructor
+
+```typescript
+new AddLiquidityAction(config: AddLiquidityActionConfig)
+```
+
+**Parameters:**
+- `config.suiClient`: SuiClient instance for blockchain interaction
+- `config.privateKeyHex`: Private key in hexadecimal format (with or without 0x prefix)
+
+#### Methods
+
+##### addLiquidity()
+
+```typescript
+async addLiquidity(params: AddLiquidityActionParams): Promise<AddLiquidityActionResult>
+```
+
+**Parameters:**
+- `params.decimal`: Number of decimal places for the token
+- `params.addType`: Type of asset to add ('SY' | 'TOKEN' | 'PT')
+- `params.slippage`: Maximum slippage tolerance (e.g., '0.01' for 1%)
+- `params.lpValue`: LP value amount in base units
+- `params.coinType`: Coin type identifier
+- `params.conversionRate`: Conversion rate for the operation
+- `params.addValue`: Amount to add in base units
+- `params.tokenType`: Token type (0 for SY, 1 for TOKEN, 2 for PT)
+- `params.action`: Action type ('mint' | 'swap')
+- `params.coinConfig`: Coin configuration object
+- `params.marketStateData`: Market state data
+- `params.coinData`: Array of coin data objects
+- `params.pyPositionData`: PY position data
+- `params.lpPositions`: Array of LP positions
+- `params.vaultId`: Optional vault identifier
+- `params.insufficientBalance`: Optional insufficient balance flag
+
+##### removeLiquidity()
+
+```typescript
+async removeLiquidity(params: RemoveLiquidityActionParams): Promise<AddLiquidityActionResult>
+```
+
+**Parameters:**
+- `params.lpAmount`: Amount of LP tokens to remove
+- `params.slippage`: Maximum slippage tolerance
+- `params.ytBalance`: YT balance amount
+- `params.action`: Action type ('swap' | 'redeem')
+- `params.receivingType`: Type of asset to receive ('underlying' | 'sy')
+- `params.coinConfig`: Coin configuration object
+- `params.lpPositions`: Array of LP positions
+- `params.pyPositions`: Array of PY positions
+- `params.marketState`: Market state object
+- `params.vaultId`: Optional vault identifier
+- `params.minSyOut`: Optional minimum SY output
+- `params.ptCoins`: Optional PT coins array
+- `params.minValue`: Optional minimum value
+- `params.isSwapPt`: Optional PT swap flag
+
+##### execute()
+
+```typescript
+async execute(params: AddLiquidityActionParams): Promise<AddLiquidityActionResult>
+```
+
+Alias for `addLiquidity()` method for backward compatibility.
+
+##### getAddress()
+
+```typescript
+getAddress(): string
+```
+
+Returns the wallet address associated with the private key.
+
+##### getSuiClient()
+
+```typescript
+getSuiClient(): SuiClient
+```
+
+Returns the SuiClient instance used for blockchain interactions.
 
 ---
 
@@ -554,8 +838,119 @@ interface PortfolioItem {
 }
 ```
 
+### AddLiquidityActionConfig
+
+```typescript
+interface AddLiquidityActionConfig {
+  suiClient: SuiClient;
+  privateKeyHex: string; // hexadecimal private key (with or without 0x prefix)
+}
+```
+
+### AddLiquidityActionParams
+
+```typescript
+interface AddLiquidityActionParams {
+  // Basic parameters
+  decimal: number;
+  addType: string;
+  slippage: string;
+  lpValue: string;
+  coinType: string;
+  conversionRate: string;
+  addValue: string;
+  tokenType: number;
+  action: string; // "mint" | "swap"
+  
+  // Configuration and data
+  coinConfig: CoinConfig;
+  marketStateData: any;
+  coinData: CoinData[];
+  pyPositionData: any;
+  lpPositions: LpPosition[];
+  
+  // Optional parameters
+  vaultId?: string;
+  insufficientBalance?: boolean;
+}
+```
+
+### RemoveLiquidityActionParams
+
+```typescript
+interface RemoveLiquidityActionParams {
+  lpAmount: string;
+  slippage: string;
+  vaultId?: string;
+  minSyOut?: string;
+  ytBalance: string;
+  ptCoins?: CoinData[];
+  coinConfig: CoinConfig;
+  action: "swap" | "redeem";
+  lpPositions: LpPosition[];
+  pyPositions: any[];
+  minValue?: string | number;
+  isSwapPt?: boolean;
+  receivingType?: "underlying" | "sy";
+  marketState: MarketState;
+}
+```
+
+### AddLiquidityActionResult
+
+```typescript
+interface AddLiquidityActionResult {
+  success: boolean;
+  transactionHash?: string;
+  error?: string;
+  data?: any;
+}
+```
+
+### CoinConfig
+
+```typescript
+interface CoinConfig {
+  nemoContractId: string;
+  version: string;
+  coinType: string;
+  pyStateId: string;
+  syCoinType: string;
+  yieldFactoryConfigId: string;
+  marketStateId: string;
+  underlyingCoinType: string;
+  underlyingProtocol: string;
+  priceOracleConfigId: string;
+  oraclePackageId: string;
+  oracleTicket: string;
+  oracleVoucherPackageId: string;
+}
+```
+
+### CoinData
+
+```typescript
+interface CoinData {
+  coinType: string;
+  balance: string;
+  coinObjectId: string;
+}
+```
+
+### MarketState
+
+```typescript
+interface MarketState {
+  marketCap: string;
+  totalSy: string;
+  lpSupply: string;
+  totalPt: string;
+  rewardMetrics: any[];
+}
+```
+
 ---
 
-**Document Version**: 1.0
+**Document Version**: 1.1
 
 **Last Updated**: [Date] 

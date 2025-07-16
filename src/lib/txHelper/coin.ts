@@ -393,12 +393,12 @@ export const mintSCoin = async <T extends boolean = false>({
         : sCoin) as unknown as MintSCoinResult<T>;
     }
     case "Haedal": {
-      // 根据 coinType 处理不同的逻辑
+      // Handle different logic based on coinType
       if (
         config.coinType ===
         "0x8b4d553839b219c3fd47608a0cc3d5fcc572cb25d41b7df3833208586a8d2470::hawal::HAWAL"
       ) {
-        // 处理 HAWAL 特殊情况
+        // Handle HAWAL special case
         const moveCall = {
           target: `0x8b4d553839b219c3fd47608a0cc3d5fcc572cb25d41b7df3833208586a8d2470::walstaking::request_stake_coin`,
           arguments: [
@@ -626,7 +626,7 @@ export const mintSCoin = async <T extends boolean = false>({
         typeArguments: getAllowedVersionsMoveCall.typeArguments,
       });
 
-      // 然后调用blizzard_protocol::mint
+      // Then call blizzard_protocol::mint
       const mintMoveCall = {
         target: `0x29ba7f7bc53e776f27a6d1289555ded2f407b4b1a799224f06b26addbcd1c33d::blizzard_protocol::mint`,
         arguments: [
@@ -817,14 +817,14 @@ export const burnSCoin = async <T extends boolean = false>({
       break;
     }
     case "Haedal": {
-      // 检查是否为 HAWAL 币种
+      // Check if it's HAWAL coin type
       if (
         config.coinType ===
         "0x8b4d553839b219c3fd47608a0cc3d5fcc572cb25d41b7df3833208586a8d2470::hawal::HAWAL"
       ) {
         throw new Error("Underlying protocol error, try to withdraw to HAWAL.");
       } else {
-        // 原有的 HASUI 处理逻辑
+        // Original HASUI handling logic
         const unstakeMoveCall = {
           target: `0x3f45767c1aa95b25422f675800f02d8a813ec793a00b60667d071a77ba7178a2::staking::request_unstake_instant_coin`,
           arguments: [
@@ -1145,7 +1145,7 @@ export const burnSCoin = async <T extends boolean = false>({
       };
       moveCallInfos.push(fcfsMoveCall);
 
-      // 调用blizzard_hooks::fcfs获取ixVector
+      // Call blizzard_hooks::fcfs to get ixVector
 
       const [, ixVector] = tx.moveCall({
         target: fcfsMoveCall.target,
@@ -1157,7 +1157,7 @@ export const burnSCoin = async <T extends boolean = false>({
         typeArguments: fcfsMoveCall.typeArguments,
       });
 
-      // 首先调用get_allowed_versions获取版本信息
+      // First call get_allowed_versions to get version information
       const getAllowedVersionsMoveCall = {
         target: `0x29ba7f7bc53e776f27a6d1289555ded2f407b4b1a799224f06b26addbcd1c33d::blizzard_allowed_versions::get_allowed_versions`,
         arguments: [
@@ -1181,7 +1181,7 @@ export const burnSCoin = async <T extends boolean = false>({
         typeArguments: getAllowedVersionsMoveCall.typeArguments,
       });
 
-      // 调用burn_lst函数
+      // Call burn_lst function
       const burnLstMoveCall = {
         target: `0x29ba7f7bc53e776f27a6d1289555ded2f407b4b1a799224f06b26addbcd1c33d::blizzard_protocol::burn_lst`,
         arguments: [
@@ -1312,8 +1312,8 @@ interface SplitCoinHelperParams {
 
 /**
  * Split coins based on amounts array.
- * @param amounts - 数组长度必须 >= 1
- * @returns TransactionObjectArgument[] - 长度等于 amounts.length
+ * @param amounts - array length must be >= 1
+ * @returns TransactionObjectArgument[] - length equals amounts.length
  */
 export function splitCoinHelper({
   tx,

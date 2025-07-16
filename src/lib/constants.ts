@@ -155,14 +155,14 @@ export const SCALLOP = {
         "0x4ae9417c4c2ae8e629e72d06682f248c90c61233d43eb0a5654de768d63be26d",
     },
   ],
-} as const
+} as const;
 
 export const VALIDATORS = {
   MYSTEN_2:
     "0xcb7efe4253a0fe58df608d8a2d3c0eea94b4b40a8738c8daae4eb77830c16cd7",
   MYSTEN_1:
     "0x4fffd0005522be4bc029724c7f0f6ed7093a6bf3a09b90e62f61dc15181e1a3e",
-} as const
+} as const;
 
 export const AFTERMATH = {
   STAKED_SUI_VAULT:
@@ -176,35 +176,35 @@ export const AFTERMATH = {
     "0xd2b95022244757b0ab9f74e2ee2fb2c3bf29dce5590fa6993a85d64bd219d7e8",
   VALIDATOR_CONFIGS_TABLE:
     "0x8536350cfb8a8efdd133a1e087b55416d431f7e8b894f77b55b20c4b799ebad9",
-} as const
+} as const;
 
 export function getTreasury(coinType: string) {
   const treasury = SCALLOP.S_COIN.find(
-    (item) => item.coinType === coinType,
-  )?.treasury
+    (item) => item.coinType === coinType
+  )?.treasury;
   if (!treasury) {
-    throw new Error("Scallop scoin treasury not found")
+    throw new Error("Scallop scoin treasury not found");
   }
-  return treasury
+  return treasury;
 }
 
 export const DEFAULT_Address =
-  "0x0000000000000000000000000000000000000000000000000000000000000001"
+  "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 export const SSBUCK = {
   VAULT: "0xe83e455a9e99884c086c8c79c13367e7a865de1f953e75bcf3e529cdf03c6224",
-} as const
+} as const;
 
 export const Time = {
   CONVERSION_RATE_REFRESH_INTERVAL: 1000 * 20,
-} as const
+} as const;
 
 export const ALPAHFI = {
   PACKAGE_ID:
     "0x059f94b85c07eb74d2847f8255d8cc0a67c9a8dcc039eabf9f8b9e23a0de2700",
   LIQUID_STAKING_INFO:
     "0x1adb343ab351458e151bc392fbf1558b3332467f23bda45ae67cd355a57fd5f5",
-} as const
+} as const;
 
 export const SPRING_SUI_STAKING_INFO_LIST = [
   {
@@ -257,14 +257,14 @@ export const SPRING_SUI_STAKING_INFO_LIST = [
       "0x922d15d7f55c13fd790f6e54397470ec592caa2b508df292a2e8553f3d3b274f::msui::MSUI",
     value: "0x985dd33bc2a8b5390f2c30a18d32e9a63a993a5b52750c6fe2e6ac8baeb69f48",
   },
-]
+];
 
 export const HAEDAL = {
   HAEDAL_STAKING_ID:
     "0x47b224762220393057ebf4f70501b6e657c3e56684737568439a04f80849b2ca",
   HAWAL_STAKING_ID:
     "0x9e5f6537be1a5b658ec7eed23160df0b28c799563f6c41e9becc9ad633cb592b",
-} as const
+} as const;
 
 export const NEED_MIN_VALUE_LIST = [
   {
@@ -299,7 +299,7 @@ export const NEED_MIN_VALUE_LIST = [
       "0x8b4d553839b219c3fd47608a0cc3d5fcc572cb25d41b7df3833208586a8d2470::hawal::HAWAL",
     minValue: 1,
   },
-]
+];
 
 export const VOLO = {
   NATIVE_POOL:
@@ -308,12 +308,12 @@ export const VOLO = {
     "0x2d914e23d82fedef1b5f56a32d5c64bdcc3087ccfea2b4d6ea51a71f587840e5",
   METADATA:
     "0x680cd26af32b2bde8d3361e804c53ec1d1cfe24c7f039eb7f549e8dfde389a60",
-} as const
+} as const;
 
 export const WINTER = {
   WALRUS_STAKING:
     "0x10b9d30c28448939ce6c4d6c6e0ffce4a7f8a4ada8248bdad09ef8b70e4a3904",
-} as const
+} as const;
 
 export const Winter_Blizzard_Staking_List = [
   {
@@ -351,7 +351,7 @@ export const Winter_Blizzard_Staking_List = [
       "0x64e081287af3fb4eb5720137348661493203d48535f582577177fcd3b253805f::mwal::MWAL",
     value: "0x1c98a3851302351913b34491a07930e83b1bd502cf1c6e9428b1c5d690d1e074",
   },
-]
+];
 
 export const SUPER_SUI = {
   PACKAGE_ID:
@@ -359,7 +359,7 @@ export const SUPER_SUI = {
   REGISTRY:
     "0x5ff2396592a20f7bf6ff291963948d6fc2abec279e11f50ee74d193c4cf0bba8",
   VAULT: "0x3062285974a5e517c88cf3395923aac788dce74f3640029a01e25d76c4e76f5d",
-} as const
+} as const;
 
 export const WWAL = {
   PACKAGE_ID:
@@ -368,7 +368,7 @@ export const WWAL = {
     "0x6d7da14a09687a3ed3e97deb3bc2428ab7f2db39f4e706dd7344760b5ae43729",
   WALRUS_STAKING:
     "0x10b9d30c28448939ce6c4d6c6e0ffce4a7f8a4ada8248bdad09ef8b70e4a3904",
-} as const
+} as const;
 
 export const CETUS_VAULT_ID_LIST = [
   {
@@ -389,7 +389,7 @@ export const CETUS_VAULT_ID_LIST = [
     vaultId:
       "0x5732b81e659bd2db47a5b55755743dde15be99490a39717abc80d62ec812bcb6",
   },
-]
+];
 
 export const CETUS_VAULT_CONFIG = [
   {
@@ -416,7 +416,7 @@ export const CETUS_VAULT_CONFIG = [
     poolId:
       "0x6c545e78638c8c1db7a48b282bb8ca79da107993fcb185f75cedc1f5adb2f535",
   },
-]
+];
 
 export const NO_SUPPORT_UNDERLYING_COINS = [
   {
@@ -443,4 +443,4 @@ export const NO_SUPPORT_UNDERLYING_COINS = [
     coinType:
       "0x8b4d553839b219c3fd47608a0cc3d5fcc572cb25d41b7df3833208586a8d2470::hawal::HAWAL",
   },
-]
+];

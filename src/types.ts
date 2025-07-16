@@ -1,4 +1,4 @@
-import { type TransactionObjectArgument } from "@mysten/sui/transactions";
+
 
 export interface QueryOptions {
   address: string;
@@ -160,7 +160,129 @@ export interface MoveCallInfo {
   target: string;
   arguments: {
     name: string;
-    value: string | TransactionObjectArgument;
+    value: string | any;
   }[];
   typeArguments: string[];
+}
+
+// FIXME: optimize this
+export interface BaseCoinInfo {
+  id: string
+  tvl: string
+  tvlRateChange: string
+  coinLogo: string
+  maturity: string
+  startTime: string
+  coinName: string
+  coinType: string
+  ptTokenType: string
+  nemoContractId: string
+  boost: string
+  provider: string
+  providerLogo: string
+  cap: string
+  marketStateId: string
+  syCoinType: string
+  underlyingCoinType: string
+  providerMarket: string
+  providerVersion: string
+  priceOracleConfigId: string
+  decimal: string
+  underlyingApy: string
+  coinPrice: string
+  underlyingPrice: string
+  pyStateId: string
+  syStateId: string
+  conversionRate: string
+  marketFactoryConfigId: string
+  swapFeeForLpHolder: string
+  underlyingCoinName: string
+  underlyingCoinLogo: string
+  version: string
+  perPoints: string
+  oraclePackageId: string
+  oracleTicket: string
+  oracleVoucherPackageId: string
+  yieldTokenType: string
+  tokenRegistryState: string
+  ptPrice: string
+  ptTvl: string
+  syTvl: string
+  marketState: MarketState
+  scaledPtApy: string
+  scaledUnderlyingApy: string
+  feeApy: string
+  sevenAvgUnderlyingApy: string
+  sevenAvgUnderlyingApyRateChange: string
+  ytPrice: string
+}
+
+interface BuiltOn {
+  name: string
+  logo: string
+  url: string
+}
+
+export interface CoinConfig extends BaseCoinInfo {
+  vaultId: string | undefined
+  marketAddress: string | null | undefined
+  ptAddress: string | null | undefined
+  ytAddress: string | null | undefined
+  assetAddress: string | null | undefined
+  marketIntro: string
+  PtAddress: string | null | undefined
+  poolApyRateChange: string
+  poolApy: string
+  yieldApyRateChange: string
+  yieldApy: string
+  fixedApyRateChange: string
+  fixedApy: string
+  volume: string
+  volumeRateChange: string
+  liquidity: string
+  liquidityRateChange: string
+  pyStoreId: string
+  pyPosition: string
+  pyPositionType: string
+  pyPositionTypeList: string[]
+  marketPosition: string
+  marketPositionType: string
+  marketPositionTypeList: string[]
+  nemoContractIdList: string[]
+  lpPrice: string
+  coinPrice: string
+  sevenAvgUnderlyingPtApy: string
+  sevenAvgUnderlyingYtApy: string
+  sevenAvgUnderlyingApy: string
+  underlyingProtocol: string
+  underlyingProtocolLogo: string
+  swapFeeApy: string
+  marketFactoryConfigId: string
+  tradeFee: string
+  feeRate: string
+  yieldFactoryConfigId: string
+  builtOn?: BuiltOn[]
+  tradeStatus: string
+  ptTokenLogo: string
+  ytTokenLogo: string
+  lpTokenLogo: string
+  lpPriceRateChange: string
+  ptPriceRateChange: string
+  ytPriceRateChange: string
+  incentiveApy: string
+  incentives: Incentive[]
+}
+
+export interface CoinData {
+  balance: string
+  coinObjectId: string
+}
+
+export interface LpPosition {
+  name: string;
+  expiry: string;
+  lp_amount: string;
+  id: { id: string };
+  description: string;
+  marketStateId: string;
 }

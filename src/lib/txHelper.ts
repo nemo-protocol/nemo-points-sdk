@@ -1,5 +1,10 @@
-import Decimal from "decimal.js";
-import type { CoinData, MoveCallInfo, LpPosition, CoinConfig } from "../types";
+
+import type {
+  CoinData,
+  MoveCallInfo,
+  LpPosition,
+  CoinConfig,
+} from "../api/types";
 import {
   Transaction,
   type TransactionResult,
@@ -9,127 +14,6 @@ import {
 // Simple debug log function
 const debugLog = (message: string, data?: any) => {
   console.log(message, data);
-};
-
-export function splitCoinHelper(
-  tx: Transaction,
-  coinData: CoinData[],
-  amounts: string[],
-  coinType?: string
-) {
-  debugLog("splitCoinHelper params:", {
-    coinData,
-    amounts,
-    coinType,
-  });
-
-  const totalTargetAmount = amounts.reduce(
-    (sum, amount) => sum.add(new Decimal(amount)),
-    new Decimal(0)
-  );
-
-  if (
-    !coinType ||
-    [
-      "0x2::sui::SUI",
-      "0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI",
-    ].includes(coinType)
-  ) {
-    const totalBalance = coinData.reduce(
-      (sum, coin) => sum.add(coin.balance),
-      new Decimal(0)
-    );
-
-    if (totalBalance.lt(totalTargetAmount)) {
-      throw new Error(coinType + " " + "Insufficient balance");
-    }
-
-    return tx.splitCoins(tx.gas, amounts);
-  } else {
-    const firstCoinBalance = new Decimal(coinData[0].balance);
-
-    if (firstCoinBalance.gte(totalTargetAmount)) {
-      if (firstCoinBalance.eq(totalTargetAmount) && amounts.length === 1) {
-        return [tx.object(coinData[0].coinObjectId)];
-      }
-      return tx.splitCoins(tx.object(coinData[0].coinObjectId), amounts);
-    }
-
-    const coinsToUse: string[] = [];
-    let accumulatedBalance = new Decimal(0);
-
-    for (const coin of coinData) {
-      accumulatedBalance = accumulatedBalance.add(coin.balance);
-      coinsToUse.push(coin.coinObjectId);
-
-      if (accumulatedBalance.gte(totalTargetAmount)) {
-        break;
-      }
-    }
-
-    if (accumulatedBalance.lt(totalTargetAmount)) {
-      throw new Error(coinType + " " + "insufficient balance");
-    }
-
-    tx.mergeCoins(
-      tx.object(coinsToUse[0]),
-      coinsToUse.slice(1).map((id) => tx.object(id))
-    );
-    return tx.splitCoins(coinsToUse[0], amounts);
-  }
-}
-
-export const mergeLpPositions = (
-  tx: Transaction,
-  coinConfig: CoinConfig,
-  lpPositions: LpPosition[],
-  lpAmount: string
-) => {
-  debugLog("mergeLppMarketPositions params:", {
-    lpPositions,
-    lpAmount,
-  });
-
-  const sortedPositions = [...lpPositions].sort(
-    (a, b) => Number(b.lp_amount) - Number(a.lp_amount)
-  );
-
-  let accumulatedAmount = new Decimal(0);
-  const positionsToMerge: LpPosition[] = [];
-  for (const position of sortedPositions) {
-    accumulatedAmount = accumulatedAmount.add(position.lp_amount);
-    positionsToMerge.push(position);
-
-    if (accumulatedAmount.gte(lpAmount)) {
-      break;
-    }
-  }
-
-  if (accumulatedAmount.lt(lpAmount)) {
-    throw new Error("Insufficient LP balance");
-  }
-
-  const mergedPosition = tx.object(positionsToMerge[0].id.id);
-
-  if (positionsToMerge.length === 1) {
-    return mergedPosition;
-  }
-
-  for (let i = 1; i < positionsToMerge.length; i++) {
-    const joinMoveCall = {
-      target: `${coinConfig.nemoContractId}::market_position::join`,
-      arguments: [positionsToMerge[0].id.id, positionsToMerge[i].id.id, "0x6"],
-      typeArguments: [],
-    };
-    debugLog("market_position::join move call:", joinMoveCall);
-
-    tx.moveCall({
-      ...joinMoveCall,
-      arguments: joinMoveCall.arguments.map((arg) => tx.object(arg)),
-    });
-  }
-
-  return mergedPosition;
 };
 
 export function depositSyCoin(

@@ -1,5 +1,5 @@
-import { nemoApi } from './request'
-import type { PortfolioItem } from './types'
+import { nemoApi } from './api/request'
+import type { PortfolioItem } from './api/types'
 
 export class PoolQuery {
   constructor() {
@@ -7,6 +7,6 @@ export class PoolQuery {
   }
 
   async queryPools(): Promise<PortfolioItem[]> {
-    return nemoApi<PortfolioItem[]>("/api/v1/portfolio/detail").get()
+    return nemoApi<PortfolioItem[]>("/api/v1/portfolio/inner/detail").get()
   }
 } 

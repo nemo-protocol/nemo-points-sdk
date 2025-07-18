@@ -1,7 +1,7 @@
 import { bcs } from "@mysten/sui/bcs"
 import { Transaction } from "@mysten/sui/transactions"
 import type { SuiClient } from "@mysten/sui/client"
-import type { CoinConfig, CoinData } from "../../types"
+import type { CoinConfig, CoinData } from "../../api/types"
 import { getPriceVoucher } from "../../lib/txHelper/price"
 
 interface ContractError extends Error {

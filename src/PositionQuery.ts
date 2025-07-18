@@ -2,16 +2,16 @@ import { Decimal } from "decimal.js";
 import { bcs } from "@mysten/sui/bcs";
 import { burnSCoin } from "@/lib/txHelper/coin";
 import { getCoinValue } from "./lib/txHelper/coin";
-import type { PositionQueryConfig } from "./types";
+import type { PositionQueryConfig } from "./api/types";
 import { NEED_MIN_VALUE_LIST } from "./lib/constants";
 import { Transaction } from "@mysten/sui/transactions";
 import { getPriceVoucher } from "./lib/txHelper/price";
-import { initPyPosition } from "./lib/txHelper/position";
-import { queryYield } from "./dryrun/syCoinValue/queryYield";
+import { initPyPosition } from "./core/trade/initPyPosition";
+import { queryYield } from "./dryrun/yield/queryYield";
 import { SuiClient, getFullnodeUrl } from "@mysten/sui/client";
-import { redeemSyCoin, redeemInterest } from "./lib/txHelper/redeem";
-import { claimReward } from "./lib/txHelper/rewards";
-import { mergeLpPositions } from "./lib/txHelper/lp";
+import { redeemSyCoin, redeemInterest } from "./core/market/redeem";
+import { claimReward } from "./core/market/rewards";
+import { mergeLpPositions } from "./core/market/mergeLpPositions";
 import type {
   LpPosition,
   PyPosition,
@@ -19,7 +19,7 @@ import type {
   // PyPositionRaw,
   QueryYieldParams,
 } from "./types/position";
-import type { RewardMetric } from "./types";
+import type { RewardMetric } from "./api/types";
 import type { ClaimRewardConfig } from "./types/rewards";
 
 export class PositionQuery {

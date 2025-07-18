@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import type { MoveCallInfo } from "@/types";
+import type { MoveCallInfo } from "@/api/types";
 import type { MergeLpPositionsConfig } from "@/types/lp";
 import type { LpPosition } from "@/types/position";
 import { Transaction } from "@mysten/sui/transactions";

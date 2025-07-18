@@ -1,8 +1,9 @@
 import type { SuiClient } from "@mysten/sui/client"
 import type { Ed25519Keypair } from "@mysten/sui/keypairs/ed25519"
-import type { CoinConfig, CoinData, MarketState } from "./types"
+import type { CoinConfig, CoinData, MarketState } from "./api/types"
 import type { LpPosition } from "./types/position"
-import { addLiquidity, removeLiquidity } from "./lib/liquidity"
+import { addLiquidity } from "./tx/addLiquidity"
+import { removeLiquidity } from "./tx/removeLiquidity"
 import { createKeypairFromHex } from "./utils/keypair"
 
 /**
@@ -132,7 +133,6 @@ export class AddLiquidityAction {
 
       return {
         success: true,
-        transactionHash: result?.digest || result?.transactionBlockDigest,
         data: result,
       }
     } catch (error) {
@@ -169,17 +169,19 @@ export class AddLiquidityAction {
         isSwapPt: params.isSwapPt,
         receivingType: params.receivingType,
         marketState: params.marketState,
-        suiClient: this.suiClient,
-        defaultAddress: this.defaultAddress,
-        keypair: this.keypair,
       }
 
       // Execute remove liquidity
-      const result = await removeLiquidity(removeLiquidityParams)
+      const tx = await removeLiquidity(removeLiquidityParams)
+
+      // Sign and execute the transaction
+      const result = await this.suiClient.signAndExecuteTransaction({
+        transaction: tx,
+        signer: this.keypair,
+      })
 
       return {
         success: true,
-        transactionHash: result?.digest || result?.transactionBlockDigest,
         data: result,
       }
     } catch (error) {

@@ -1,4 +1,4 @@
-import { type MoveCallInfo } from "@/types";
+import { type MoveCallInfo } from "@/api/types";
 import { type InitPyPositionParams } from "@/types/position";
 import { type TransactionObjectArgument } from "@mysten/sui/transactions";
 

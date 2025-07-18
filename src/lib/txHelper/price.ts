@@ -1,4 +1,4 @@
-import type { MoveCallInfo } from "@/types";
+import type { MoveCallInfo } from "@/api/types";
 import type { GetPriceConfig } from "@/types/price";
 import { Transaction } from "@mysten/sui/transactions";
 import type { TransactionObjectArgument } from "@mysten/sui/transactions";

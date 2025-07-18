@@ -3,8 +3,8 @@ import { bcs } from "@mysten/sui/bcs";
 import { Transaction } from "@mysten/sui/transactions";
 import { SuiClient } from "@mysten/sui/client";
 import { getPriceVoucher } from "@/lib/txHelper/price";
-import { initPyPosition } from "@/lib/txHelper/position";
-import { redeemSyCoin, redeemInterest } from "@/lib/txHelper/redeem";
+import { initPyPosition } from "@/core/trade/initPyPosition";
+import { redeemSyCoin, redeemInterest } from "@/core/market/redeem";
 import { getCoinValue } from "@/lib/txHelper/coin";
 import type { QueryYieldParams } from "@/types/position";
 

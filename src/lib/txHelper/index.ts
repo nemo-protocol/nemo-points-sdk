@@ -1,5 +1,5 @@
 import Decimal from "decimal.js"
-import type { CoinData, CoinConfig, MoveCallInfo } from "../../types"
+import type { CoinData, CoinConfig, MoveCallInfo } from "../../api/types"
 import {
   Transaction,
   type TransactionResult,

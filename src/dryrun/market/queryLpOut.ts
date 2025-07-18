@@ -1,8 +1,8 @@
 import { Transaction } from "@mysten/sui/transactions"
 import { bcs } from "@mysten/sui/bcs"
-import type { CoinConfig } from "../types"
-import type { DebugInfo } from "../types"
-import { ContractError } from "../types"
+import type { CoinConfig } from "../../api/types"
+import type { DebugInfo } from "../../api/types"
+import { ContractError } from "../../api/types"
 
 interface QueryLpOutParams {
   ptValue: string

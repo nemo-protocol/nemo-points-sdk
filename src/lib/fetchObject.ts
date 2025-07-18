@@ -1,5 +1,5 @@
-import { ContractError } from "../types"
-import type { DebugInfo } from "../types"
+import { ContractError } from "../api/types"
+import type { DebugInfo } from "../api/types"
 
 // Update GetObjectParams type definition
 interface GetObjectParams {

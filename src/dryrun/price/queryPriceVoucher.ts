@@ -1,15 +1,27 @@
 import { bcs } from "@mysten/sui/bcs"
-import { ContractError } from "../types"
-import type { DebugInfo } from "../types"
+import { ContractError } from "../../api/types"
+import type { DebugInfo } from "../../api/types"
 import { Transaction } from "@mysten/sui/transactions"
-import { getPriceVoucher } from "./txHelper/price"
-import type { CoinConfig } from "../types"
+import { getPriceVoucher } from "../../lib/txHelper/price"
+import type { CoinConfig } from "../../types/coin"
 
 interface QueryPriceVoucherParams {
   coinConfig: CoinConfig
   suiClient: any // SuiClient instance
   defaultAddress: string
   caller?: string
+}
+
+// Helper function to convert CoinConfig to GetPriceConfig
+function convertToGetPriceConfig(coinConfig: CoinConfig): any {
+  return {
+    ...coinConfig,
+    oraclePackageId: coinConfig.nemoContractId, // Use nemoContractId as oraclePackageId
+    decimal: "9", // Default decimal
+    priceOracleConfigId: coinConfig.marketStateId, // Use marketStateId as priceOracleConfigId
+    oracleTicket: coinConfig.pyStateId, // Use pyStateId as oracleTicket
+    syStateId: coinConfig.pyStateId, // Use pyStateId as syStateId
+  };
 }
 
 export async function queryPriceVoucher(
@@ -33,7 +45,7 @@ export async function queryPriceVoucher(
   try {
     const [, priceVoucherMoveCallInfo] = getPriceVoucher(
       tx,
-      coinConfig,
+      convertToGetPriceConfig(coinConfig),
       true, // returnDebugInfo = true to get [TransactionObjectArgument, MoveCallInfo]
     )
 

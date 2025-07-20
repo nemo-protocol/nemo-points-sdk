@@ -1,0 +1,28 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "verbatimModuleSyntax": false,
+        "allowImportingTsExtensions": false,
+        "noEmit": true,
+        "declaration": false,
+        "declarationMap": false,
+        "emitDeclarationOnly": false,
+        "types": [
+            "jest",
+            "node"
+        ]
+    },
+    "include": [
+        "src/**/*",
+        "tests/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

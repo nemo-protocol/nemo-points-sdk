@@ -10,15 +10,15 @@ export class RedemptionOperations extends MarketOperations {
      * Redeem SY coin
      * Replaces redeemSyCoin function in redeem.ts
      */
-    redeemSyCoin(
+    async redeemSyCoin(
         syCoin: TransactionObjectArgument,
         options?: OperationOptions
-    ): OperationResult<TransactionResult> {
+    ): Promise<OperationResult<TransactionResult>> {
         if (!this.config.syStateId) {
             throw new Error("syStateId is required for redeemSyCoin");
         }
 
-        return this.executeMove<TransactionResult>(
+        return await this.executeMove<TransactionResult>(
             `${this.config.nemoContractId}::sy::redeem`,
             [
                 { name: "version", value: this.config.version },
@@ -32,19 +32,23 @@ export class RedemptionOperations extends MarketOperations {
     }
 
     /**
-     * Redeem interest from yield
-     * Replaces redeemInterest function in redeem.ts
+     * Redeem interest
+     * Replaces redeemInterest function
      */
-    redeemInterest(
+    async redeemInterest(
         pyPosition: TransactionObjectArgument,
         priceVoucher: TransactionObjectArgument,
         options?: OperationOptions
-    ): OperationResult<TransactionResult> {
+    ): Promise<OperationResult<TransactionResult>> {
+        if (!this.config.pyStateId) {
+            throw new Error("pyStateId is required for redeemInterest");
+        }
+
         if (!this.config.yieldFactoryConfigId) {
             throw new Error("yieldFactoryConfigId is required for redeemInterest");
         }
 
-        return this.executeMove<TransactionResult>(
+        return await this.executeMove<TransactionResult>(
             `${this.config.nemoContractId}::yield_factory::redeem_due_interest`,
             [
                 { name: "version", value: this.config.version },

@@ -51,4 +51,9 @@ export interface CoinConfig {
    * Provider type (Winter, etc.)
    */
   provider?: string;
+
+  /**
+   * Market maturity timestamp (optional)
+   */
+  maturity?: string;
 }

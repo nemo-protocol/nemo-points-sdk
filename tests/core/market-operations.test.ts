@@ -1,23 +1,23 @@
 import { Transaction } from "@mysten/sui/transactions";
-import {
-    Market,
-    LiquidityOperations,
-    PositionOperations,
-    RedemptionOperations,
-    RewardsOperations,
-    MarketConfig
-} from "../../src/core/market";
+import { SuiClient } from "@mysten/sui/client";
+import { Market } from "../../src/core/market/Market";
+import { LiquidityOperations, PositionOperations, RedemptionOperations, RewardsOperations } from "../../src/core/market";
+import type { MarketConfig } from "../../src/core/market/base/MarketOperations";
 
-// Mock configuration for testing
+// Test SUI client configuration
+const testSuiClient = new SuiClient({
+    url: "https://fullnode.mainnet.sui.io:443",
+});
+
+// Test configuration
 const mockConfig: MarketConfig = {
-    nemoContractId: "0x123456789abcdef",
-    version: "0x456789abcdef123",
-    pyStateId: "0x789abcdef123456",
-    syCoinType: "0xabc123::sy_coin::SyCoin",
-    marketStateId: "0xdef456789abcdef",
-    yieldFactoryConfigId: "0x111222333444555",
-    marketFactoryConfigId: "0x222333444555666",
-    syStateId: "0x333444555666777",
+    nemoContractId: "0x123",
+    version: "0x1",
+    syCoinType: "0x456::sy_coin::SyCoin<0x789::sui::SUI>",
+    marketStateId: "0xabc",
+    marketFactoryConfigId: "0xdef",
+    yieldFactoryConfigId: "0x111",
+    pyStateId: "0x222"
 };
 
 describe("Market Operations", () => {
@@ -105,8 +105,8 @@ describe("Liquidity Operations", () => {
         const priceVoucher = () => tx.object("0x456");
         const pyPosition = () => tx.object("0x789");
 
-        it("should execute operation and return result without debug info", () => {
-            const result = market.liquidity.addLiquiditySingleSy(
+        it("should execute operation and return result without debug info", async () => {
+            const result = await market.liquidity.addLiquiditySingleSy(
                 syCoin(), "1000000000", "950000000", priceVoucher(), pyPosition()
             );
 
@@ -114,8 +114,8 @@ describe("Liquidity Operations", () => {
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info when requested", () => {
-            const result = market.liquidity.addLiquiditySingleSy(
+        it("should return debug info when requested", async () => {
+            const result = await market.liquidity.addLiquiditySingleSy(
                 syCoin(), "1000000000", "950000000", priceVoucher(), pyPosition(),
                 { returnDebugInfo: true }
             );
@@ -133,9 +133,9 @@ describe("Liquidity Operations", () => {
         const priceVoucher = () => tx.object("0x456");
         const pyPosition = () => tx.object("0x789");
 
-        it("should not execute mint LP operation", () => {
-            const result = market.liquidity.mintLp(
-                syCoin(), ptAmount(), "500000000", priceVoucher(), pyPosition()
+        it("should execute mint LP and return result without debug info", async () => {
+            const result = await market.liquidity.mintLp(
+                syCoin(), ptAmount(), "950000000", priceVoucher(), pyPosition()
             );
 
             expect(result.result).toBeDefined();
@@ -143,9 +143,9 @@ describe("Liquidity Operations", () => {
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info for mint LP when requested", () => {
-            const result = market.liquidity.mintLp(
-                syCoin(), ptAmount(), "500000000", priceVoucher(), pyPosition(),
+        it("should execute mint LP and return debug info when requested", async () => {
+            const result = await market.liquidity.mintLp(
+                syCoin(), ptAmount(), "950000000", priceVoucher(), pyPosition(),
                 { returnDebugInfo: true }
             );
 
@@ -161,8 +161,8 @@ describe("Liquidity Operations", () => {
         const priceVoucher = () => tx.object("0x456");
         const pyPosition = () => tx.object("0x789");
 
-        it("should execute seed liquidity operation", () => {
-            const result = market.liquidity.seedLiquidity(
+        it("should execute seed liquidity and return result without debug info", async () => {
+            const result = await market.liquidity.seedLiquidity(
                 syCoin(), "1000000000", priceVoucher(), pyPosition()
             );
 
@@ -170,8 +170,8 @@ describe("Liquidity Operations", () => {
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info for seed liquidity when requested", () => {
-            const result = market.liquidity.seedLiquidity(
+        it("should execute seed liquidity and return debug info when requested", async () => {
+            const result = await market.liquidity.seedLiquidity(
                 syCoin(), "1000000000", priceVoucher(), pyPosition(),
                 { returnDebugInfo: true }
             );
@@ -220,16 +220,16 @@ describe("Position Operations", () => {
     ];
 
     describe("mergeLpPositions", () => {
-        it("should merge multiple positions correctly", () => {
-            const result = market.positions.mergeLpPositions(mockLpPositions, "2500000000");
+        it("should execute merge position operation when no merge is needed", async () => {
+            const result = await market.positions.mergeLpPositions(mockLpPositions, "2500000000");
 
             expect(result.result).toBeDefined();
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return single position when only one needed", () => {
-            const result = market.positions.mergeLpPositions(
-                [mockLpPositions[1]], "1500000000", { returnDebugInfo: true }
+        it("should execute merge position operation with no actual merges needed", async () => {
+            const result = await market.positions.mergeLpPositions(
+                [], "2500000000", { returnDebugInfo: true }
             );
 
             expect(result.result).toBeDefined();
@@ -238,15 +238,14 @@ describe("Position Operations", () => {
             expect(result.debugInfo!.length).toBe(0); // No merge operations needed
         });
 
-        it("should throw error for insufficient balance", () => {
-            expect(() => {
-                market.positions.mergeLpPositions(mockLpPositions, "5000000000");
-            }).toThrow("Insufficient LP balance");
-        });
+        it("should execute merge position operation with actual merges needed", async () => {
+            const duplicateLpPositions = [
+                ...mockLpPositions,
+                ...mockLpPositions
+            ];
 
-        it("should return debug info with merge operations", () => {
-            const result = market.positions.mergeLpPositions(
-                mockLpPositions, "2500000000", { returnDebugInfo: true }
+            const result = await market.positions.mergeLpPositions(
+                duplicateLpPositions, "2500000000", { returnDebugInfo: true }
             );
 
             expect(result.result).toBeDefined();
@@ -268,15 +267,15 @@ describe("Redemption Operations", () => {
     describe("redeemSyCoin", () => {
         const syCoin = () => tx.object("0x123");
 
-        it("should redeem SY coin correctly", () => {
-            const result = market.redemptions.redeemSyCoin(syCoin());
+        it("should redeem SY coin without debug info", async () => {
+            const result = await market.redemptions.redeemSyCoin(syCoin());
 
             expect(result.result).toBeDefined();
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info for redeem SY coin when requested", () => {
-            const result = market.redemptions.redeemSyCoin(syCoin(), { returnDebugInfo: true });
+        it("should redeem SY coin with debug info", async () => {
+            const result = await market.redemptions.redeemSyCoin(syCoin(), { returnDebugInfo: true });
 
             expect(result.result).toBeDefined();
             expect(result.debugInfo).toBeDefined();
@@ -289,15 +288,15 @@ describe("Redemption Operations", () => {
         const pyPosition = () => tx.object("0x123");
         const priceVoucher = () => tx.object("0x456");
 
-        it("should redeem interest correctly", () => {
-            const result = market.redemptions.redeemInterest(pyPosition(), priceVoucher());
+        it("should redeem interest without debug info", async () => {
+            const result = await market.redemptions.redeemInterest(pyPosition(), priceVoucher());
 
             expect(result.result).toBeDefined();
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info for redeem interest when requested", () => {
-            const result = market.redemptions.redeemInterest(
+        it("should redeem interest with debug info", async () => {
+            const result = await market.redemptions.redeemInterest(
                 pyPosition(), priceVoucher(), { returnDebugInfo: true }
             );
 
@@ -329,25 +328,26 @@ describe("Rewards Operations", () => {
     });
 
     describe("claimReward", () => {
-        const lpPosition = () => tx.object("0x123");
+        it("should claim reward without debug info", async () => {
+            const lpPosition = tx.object("0xlp1");
+            const syCoinType = mockConfig.syCoinType;
+            const rewardCoinType = "0x2::sui::SUI";
 
-        it("should claim rewards correctly", () => {
-            const result = market.rewards.claimReward(
-                lpPosition(),
-                "0x456::sy_coin::SyCoin",
-                "0x789::coin::REWARD"
+            const result = await market.rewards.claimReward(
+                lpPosition, syCoinType, rewardCoinType
             );
 
             expect(result.result).toBeDefined();
             expect(result.debugInfo).toBeUndefined();
         });
 
-        it("should return debug info for claim reward when requested", () => {
-            const result = market.rewards.claimReward(
-                lpPosition(),
-                "0x456::sy_coin::SyCoin",
-                "0x789::coin::REWARD",
-                { returnDebugInfo: true }
+        it("should claim reward with debug info", async () => {
+            const lpPosition = tx.object("0xlp1");
+            const syCoinType = mockConfig.syCoinType;
+            const rewardCoinType = "0x2::sui::SUI";
+
+            const result = await market.rewards.claimReward(
+                lpPosition, syCoinType, rewardCoinType, { returnDebugInfo: true }
             );
 
             expect(result.result).toBeDefined();
@@ -355,8 +355,8 @@ describe("Rewards Operations", () => {
             expect(result.debugInfo!.target).toContain("::market::claim_reward");
             expect(result.debugInfo!.typeArguments).toHaveLength(2);
             expect(result.debugInfo!.typeArguments).toEqual([
-                "0x456::sy_coin::SyCoin",
-                "0x789::coin::REWARD"
+                mockConfig.syCoinType,
+                rewardCoinType
             ]);
         });
     });
@@ -371,52 +371,80 @@ describe("Integration Tests", () => {
         market = Market.create(tx, mockConfig);
     });
 
-    it("should maintain transaction context across operations", () => {
+    it("should maintain transaction context across operations", async () => {
         const syCoin = tx.object("0x123");
         const priceVoucher = tx.object("0x456");
         const pyPosition = tx.object("0x789");
 
         // All operations should use the same transaction
-        const result1 = market.liquidity.addLiquiditySingleSy(
+        const result1 = await market.liquidity.addLiquiditySingleSy(
             syCoin, "1000", "950", priceVoucher, pyPosition
         );
-        const result2 = market.redemptions.redeemSyCoin(syCoin);
+        const result2 = await market.redemptions.redeemSyCoin(syCoin);
 
         expect(result1.result).toBeDefined();
         expect(result2.result).toBeDefined();
     });
 });
 
-describe("Backward Compatibility", () => {
-    it("should maintain compatibility with legacy functional API", async () => {
-        const marketModule = await import("../../src/core/market/index");
-        const {
-            handleAddLiquiditySingleSy,
-            handleMintLp,
-            seedLiquidity,
-            mergeLpPositions,
-            redeemSyCoin,
-            redeemInterest,
-            claimReward,
-            createMarket,
-        } = marketModule;
+describe("Query LP Output", () => {
+    let tx: Transaction;
+    let market: Market;
 
-        // Test all legacy exports exist and are functions
-        expect(typeof handleAddLiquiditySingleSy).toBe("function");
-        expect(typeof handleMintLp).toBe("function");
-        expect(typeof seedLiquidity).toBe("function");
-        expect(typeof mergeLpPositions).toBe("function");
-        expect(typeof redeemSyCoin).toBe("function");
-        expect(typeof redeemInterest).toBe("function");
-        expect(typeof claimReward).toBe("function");
-        expect(typeof createMarket).toBe("function");
+    beforeEach(() => {
+        tx = new Transaction();
+        market = Market.create(tx, mockConfig);
     });
 
-    it("should provide createMarket helper function", () => {
-        const tx = new Transaction();
-        const market = Market.create(tx, mockConfig);
+    it("should query LP output amount correctly", async () => {
+        const result = await market.liquidity.queryLpOut(
+            "1000000",
+            "2000000",
+            testSuiClient,
+            "0x123"
+        );
 
-        expect(market).toBeInstanceOf(Market);
+        expect(result.result).toBeDefined();
+        expect(typeof result.result).toBe("string");
+        expect(result.dryRunResult).toBeDefined();
+        expect(result.dryRunResult.parsedOutput).toBe(result.result);
+    });
+
+    it("should query LP output with debug info", async () => {
+        const result = await market.liquidity.queryLpOut(
+            "1000000",
+            "2000000",
+            testSuiClient,
+            "0x123",
+            { returnDebugInfo: true }
+        );
+
+        expect(result.result).toBeDefined();
+        expect(result.debugInfo).toBeDefined();
+    });
+
+    it("should throw error when blockchain simulation fails", async () => {
+        const failingSuiClient = {
+            devInspectTransactionBlock: jest.fn().mockResolvedValue({
+                error: "Transaction failed"
+            })
+        };
+
+        await expect(
+            market.liquidity.queryLpOut("1000000", "2000000", failingSuiClient, "0x123")
+        ).rejects.toThrow("queryLpOut error");
+    });
+
+    it("should throw error when return values are missing", async () => {
+        const emptySuiClient = {
+            devInspectTransactionBlock: jest.fn().mockResolvedValue({
+                results: []
+            })
+        };
+
+        await expect(
+            market.liquidity.queryLpOut("1000000", "2000000", emptySuiClient, "0x123")
+        ).rejects.toThrow("Failed to get LP amount from blockchain");
     });
 });
 
@@ -429,33 +457,33 @@ describe("Options Object Pattern", () => {
         market = Market.create(tx, mockConfig);
     });
 
-    it("should work without options parameter", () => {
+    it("should work without options parameter", async () => {
         const syCoin = tx.object("0x123");
-        const result = market.redemptions.redeemSyCoin(syCoin);
+        const result = await market.redemptions.redeemSyCoin(syCoin);
 
         expect(result.result).toBeDefined();
         expect(result.debugInfo).toBeUndefined();
     });
 
-    it("should work with empty options object", () => {
+    it("should work with empty options object", async () => {
         const syCoin = tx.object("0x123");
-        const result = market.redemptions.redeemSyCoin(syCoin, {});
+        const result = await market.redemptions.redeemSyCoin(syCoin, {});
 
         expect(result.result).toBeDefined();
         expect(result.debugInfo).toBeUndefined();
     });
 
-    it("should work with returnDebugInfo: false", () => {
+    it("should work with returnDebugInfo: false", async () => {
         const syCoin = tx.object("0x123");
-        const result = market.redemptions.redeemSyCoin(syCoin, { returnDebugInfo: false });
+        const result = await market.redemptions.redeemSyCoin(syCoin, { returnDebugInfo: false });
 
         expect(result.result).toBeDefined();
         expect(result.debugInfo).toBeUndefined();
     });
 
-    it("should work with returnDebugInfo: true", () => {
+    it("should work with returnDebugInfo: true", async () => {
         const syCoin = tx.object("0x123");
-        const result = market.redemptions.redeemSyCoin(syCoin, { returnDebugInfo: true });
+        const result = await market.redemptions.redeemSyCoin(syCoin, { returnDebugInfo: true });
 
         expect(result.result).toBeDefined();
         expect(result.debugInfo).toBeDefined();

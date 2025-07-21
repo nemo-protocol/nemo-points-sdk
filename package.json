@@ -20,6 +20,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:oracle": "jest tests/core/oracle-operations.test.ts",
+    "test:py": "jest tests/core/py-operations.test.ts",
     "test:market": "jest tests/core/market-operations.test.ts"
   },
   "files": [
